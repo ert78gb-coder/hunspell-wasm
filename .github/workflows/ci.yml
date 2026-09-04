@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install native Hunspell
+        run: sudo apt-get update && sudo apt-get install -y hunspell hunspell-hu
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify artefact hash
+        run: |
+          recorded=$(awk '/dist\/hunspell.wasm$/ { print $1; exit }' build/checksums.txt)
+          actual=$(sha256sum dist/hunspell.wasm | awk '{ print $1 }')
+          test -n "$recorded"
+          test "$recorded" = "$actual"
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
