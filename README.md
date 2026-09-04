@@ -45,7 +45,8 @@ the engine. Every call after `dispose` throws an `Error` whose message
 contains `disposed`.
 
 TypeScript declarations ship in `types/index.d.ts`. There is no TypeScript
-build step.
+build step. `npm run typecheck` runs [`tsd`](https://github.com/tsdjs/tsd)
+against those declarations.
 
 ## Build
 

@@ -4,7 +4,7 @@ import { loadHungarian } from './_helper/load-fixture.js'
 
 describe('analyze', () => {
   /**
-   * @type {import('../types/index.d.ts').Hunspell}
+   * @type {import('../src/index.js').Hunspell}
    */
   let hunspell
   before(async () => {

@@ -138,7 +138,7 @@ function splitLines(joined) {
   return joined.split('\n').map(line => line.trim()).filter(line => line.length > 0)
 }
 
-class Hunspell {
+class HunspellEngine {
   /**
    * @type {HunspellModule}
    */
@@ -179,7 +179,7 @@ class Hunspell {
 
   /**
    * @param {string} word
-   * @returns {import('../types/index.d.ts').Analysis[]}
+   * @returns {import('./morphology.js').Analysis[]}
    */
   analyze(word) {
     this.#ensureOpen()
@@ -239,9 +239,21 @@ class Hunspell {
 }
 
 /**
+ * Options for {@link load}.
+ * @typedef {object} LoadOptions
+ * @property {string} aff
+ * @property {string} dic
+ */
+
+/**
+ * Engine returned by {@link load}.
+ * @typedef {HunspellEngine} Hunspell
+ */
+
+/**
  * Load Hunspell with a consumer-supplied `.aff` / `.dic` pair.
- * @param {import('../types/index.d.ts').LoadOptions} options
- * @returns {Promise<import('../types/index.d.ts').Hunspell>}
+ * @param {LoadOptions} options
+ * @returns {Promise<Hunspell>}
  */
 export async function load(options) {
   if (options === null || typeof options !== 'object') {
@@ -264,5 +276,5 @@ export async function load(options) {
     throw new Error(`failed to create Hunspell engine from ${options.aff} and ${options.dic}`)
   }
 
-  return new Hunspell(module, handle)
+  return new HunspellEngine(module, handle)
 }

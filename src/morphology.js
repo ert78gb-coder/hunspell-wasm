@@ -3,6 +3,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /**
+ * One morphological reading from Hunspell.
+ * @typedef {object} Analysis
+ * @property {string | null} stem
+ * @property {string | null} pos
+ * @property {string[]} tags
+ * @property {string} raw
+ */
+
+/**
  * Hunspell sometimes prefixes a compound-part field before `st:`
  * (`po:adj_num  st:egy …`). The public line starts at `st:`, matching
  * `hunspell -m` after its word column and the tests' `raw.startsWith('st:')`.
@@ -24,7 +33,7 @@ function morphLine(raw) {
  * Fields are space-separated `key:value` tokens. `st:` becomes `stem`,
  * `po:` becomes `pos`, and every other field is kept verbatim in `tags`.
  * @param {string} raw
- * @returns {import('../types/index.d.ts').Analysis}
+ * @returns {Analysis}
  */
 export function parseAnalysis(raw) {
   raw = morphLine(raw)

@@ -36,7 +36,7 @@ function nativeAnalyses(word) {
 
 describe('against the native engine', { skip: hasNative ? false : 'hunspell binary not installed' }, () => {
   /**
-   * @type {import('../types/index.d.ts').Hunspell}
+   * @type {import('../src/index.js').Hunspell}
    */
   let hunspell
   before(async () => {
