@@ -5,18 +5,18 @@
 /**
  * One morphological reading from Hunspell.
  * @typedef {object} Analysis
- * @property {string | null} stem
- * @property {string | null} pos
- * @property {string[]} tags
- * @property {string} raw
+ * @property {string | null} stem The `st:` field, or `null` when the reading carries none.
+ * @property {string | null} pos The `po:` field (`noun`, `vrb`, `adj`, `adj_num`, …), or `null`.
+ * @property {string[]} tags Every other field as written, e.g. `is:ACC`, `ds:s_ATTRIBUTE_adj`, `ts:NOM`.
+ * @property {string} raw The whole line as the engine returned it.
  */
 
 /**
  * Hunspell sometimes prefixes a compound-part field before `st:`
  * (`po:adj_num  st:egy …`). The public line starts at `st:`, matching
  * `hunspell -m` after its word column and the tests' `raw.startsWith('st:')`.
- * @param {string} raw
- * @returns {string}
+ * @param {string} raw Engine analysis line, possibly with a compound prefix.
+ * @returns {string} The same line starting at `st:`, or the trimmed original when there is no stem field.
  */
 function morphLine(raw) {
   const trimmed = raw.trim()
@@ -32,8 +32,8 @@ function morphLine(raw) {
  *
  * Fields are space-separated `key:value` tokens. `st:` becomes `stem`,
  * `po:` becomes `pos`, and every other field is kept verbatim in `tags`.
- * @param {string} raw
- * @returns {Analysis}
+ * @param {string} raw Engine analysis line.
+ * @returns {Analysis} One reading with `stem`, `pos`, `tags`, and `raw`.
  */
 export function parseAnalysis(raw) {
   raw = morphLine(raw)

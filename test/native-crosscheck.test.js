@@ -16,8 +16,8 @@ const hasNative = (() => {
 /**
  * `hunspell -m` prints "word  analysis" lines; an unknown word prints the
  * word alone. Run under a UTF-8 locale or accented output is cut short.
- * @param {string} word
- * @returns {string[]}
+ * @param {string} word Surface form to analyse.
+ * @returns {string[]} Analysis lines after the word column.
  */
 function nativeAnalyses(word) {
   return execFileSync(

@@ -15,11 +15,6 @@ export default defineConfig([
   stylistic.configs.recommended,
   jsdoc({
     config: 'flat/recommended',
-    rules: {
-      'jsdoc/require-param-description': 'off',
-      'jsdoc/require-property-description': 'off',
-      'jsdoc/require-returns-description': 'off',
-    },
   }),
   {
     plugins: {

@@ -6,7 +6,7 @@ const fixtures = path.join(import.meta.dirname, '..', 'fixtures')
 
 /**
  * The Hungarian fixture dictionary, loaded for one test file.
- * @returns {Promise<import('../../src/index.js').Hunspell>}
+ * @returns {Promise<import('../../src/index.js').Hunspell>} Engine loaded with the `hu_HU` fixture.
  */
 export function loadHungarian() {
   return load({ aff: path.join(fixtures, 'hu_HU.aff'), dic: path.join(fixtures, 'hu_HU.dic') })
