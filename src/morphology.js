@@ -3,6 +3,23 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /**
+ * Hunspell sometimes prefixes a compound-part field before `st:`
+ * (`po:adj_num  st:egy …`). The public line starts at `st:`, matching
+ * `hunspell -m` after its word column and the tests' `raw.startsWith('st:')`.
+ *
+ * @param {string} raw
+ * @returns {string}
+ */
+function morphLine(raw) {
+  const trimmed = raw.trim()
+  const stemAt = trimmed.search(/(?:^|\s)st:/u)
+  if (stemAt === -1) {
+    return trimmed
+  }
+  return trimmed.slice(trimmed.indexOf('st:', stemAt))
+}
+
+/**
  * Parse one Hunspell analysis line into stem, pos, tags, and raw.
  *
  * Fields are space-separated `key:value` tokens. `st:` becomes `stem`,
@@ -12,6 +29,7 @@
  * @returns {import('../types/index.d.ts').Analysis}
  */
 export function parseAnalysis(raw) {
+  raw = morphLine(raw)
   /** @type {string | null} */
   let stem = null
   /** @type {string | null} */

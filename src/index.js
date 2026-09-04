@@ -108,20 +108,30 @@ function takeUtf8(module, pointer) {
 
 /**
  * @param {HunspellModule} module
- * @param {number} handle
  * @param {string} word
  * @param {(wordPointer: number) => number} call
  * @returns {string[]}
  */
-function listCall(module, handle, word, call) {
+function listCall(module, word, call) {
   const joined = withUtf8(module, word, (wordPointer) => {
     const result = call(wordPointer)
     return takeUtf8(module, result)
   })
+  return splitLines(joined)
+}
+
+/**
+ * Hunspell list items often carry a leading space from the morph formatter.
+ * The public API and the native `-m` output expose the line without it.
+ *
+ * @param {string} joined
+ * @returns {string[]}
+ */
+function splitLines(joined) {
   if (joined.length === 0) {
     return []
   }
-  return joined.split('\n')
+  return joined.split('\n').map((line) => line.trim()).filter((line) => line.length > 0)
 }
 
 class Hunspell {
@@ -164,7 +174,7 @@ class Hunspell {
   analyze(word) {
     this.#ensureOpen()
     assertString(word, 'word')
-    return listCall(this.#module, this.#handle, word, (pointer) =>
+    return listCall(this.#module, word, (pointer) =>
       this.#module._hs_analyze(this.#handle, pointer),
     ).map(parseAnalysis)
   }
@@ -176,7 +186,7 @@ class Hunspell {
   stem(word) {
     this.#ensureOpen()
     assertString(word, 'word')
-    return listCall(this.#module, this.#handle, word, (pointer) => this.#module._hs_stem(this.#handle, pointer))
+    return listCall(this.#module, word, (pointer) => this.#module._hs_stem(this.#handle, pointer))
   }
 
   /**
@@ -186,7 +196,7 @@ class Hunspell {
   suggest(word) {
     this.#ensureOpen()
     assertString(word, 'word')
-    return listCall(this.#module, this.#handle, word, (pointer) =>
+    return listCall(this.#module, word, (pointer) =>
       this.#module._hs_suggest(this.#handle, pointer),
     )
   }
@@ -206,10 +216,7 @@ class Hunspell {
         return takeUtf8(this.#module, result)
       }),
     )
-    if (joined.length === 0) {
-      return []
-    }
-    return joined.split('\n')
+    return splitLines(joined)
   }
 
   dispose() {

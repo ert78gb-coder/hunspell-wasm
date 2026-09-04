@@ -44,6 +44,7 @@
   },
   "homepage": "https://github.com/ert78gb-coder/hunspell-wasm#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "eslint": "^10.9.1",
     "globals": "^17.12.0",
     "typescript": "^7.0.2"
