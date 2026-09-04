@@ -4,8 +4,8 @@ The full text follows.
 Hunspell is included as a git submodule under vendor/hunspell, compiled into
 the WebAssembly artefact. Hunspell is tri-licensed LGPL 2.1 / GPL 2 / MPL 1.1
 and is taken under MPL. Its MPL 1.1 notices and the MPL 1.1 text are
-reproduced after this package's license. The commit built is
-c5f98152a274e25b5107101104bef632b83a0cc9.
+reproduced after this package's license. The git submodule pointer at
+vendor/hunspell records the commit compiled into the artefact.
 
 ==========================================================================
 This package (hunspell-wasm) — Mozilla Public License 2.0

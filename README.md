@@ -50,19 +50,15 @@ against those declarations.
 
 ## Build
 
-The host needs Docker and Git. The build is one container run of the pinned
-Emscripten image:
-
-```
-emscripten/emsdk:6.0.9@sha256:96617f27fe16421588241def73908fd348a7f9d260440ed0d00b36dcf7a063cc
-```
+The host needs Docker and Git. `build/build.sh` pins the Emscripten image and
+runs the compile.
 
 ```sh
 git submodule update --init
 npm run build
 ```
 
-That compiles the ten Hunspell engine files plus `build/wrapper.c` to
+That compiles the Hunspell engine files plus `build/wrapper.c` to
 `dist/hunspell.js` and `dist/hunspell.wasm`. `dist/` is a build artefact, not
 committed; a published npm package includes it so `npm install` copies files
 and nothing runs.
@@ -71,18 +67,6 @@ A release updates the submodule pointer (when the engine moves) and
 `build/checksums.txt` together, then rebuilds `dist/`. CI clones with
 submodules, runs `build/build.sh`, and fails if the hash of
 `dist/hunspell.wasm` differs from the recorded one.
-
-## Pinned inputs
-
-| input | value |
-|---|---|
-| Hunspell source | [`c5f98152a274e25b5107101104bef632b83a0cc9`](https://github.com/hunspell/hunspell/commit/c5f98152a274e25b5107101104bef632b83a0cc9) (1.7.3) at `vendor/hunspell` |
-| Emscripten | `emscripten/emsdk:6.0.9@sha256:96617f27fe16421588241def73908fd348a7f9d260440ed0d00b36dcf7a063cc` |
-| Node | ≥ 26 |
-
-The first Hunspell pin is the commit behind the 1.7.3 release, which fixes a
-stack overflow in `compound_check` on Hungarian dictionaries and a buffer
-overflow in the dictionary loader.
 
 ## Test
 
@@ -119,8 +103,8 @@ recorded below at each release.
 This package is [MPL-2.0](LICENSE).
 
 Hunspell is LGPL 2.1 / GPL 2 / MPL 1.1 tri-licence; taken under MPL. Its
-licence text is reproduced in `LICENSE`. The submodule pointer records the
-commit built: `c5f98152a274e25b5107101104bef632b83a0cc9`.
+licence text is reproduced in `LICENSE`. The submodule pointer at
+`vendor/hunspell` records the commit built.
 
 The Hungarian dictionary (magyarispell, László Németh and Ferenc Godó) is a
 GPL / LGPL / MPL tri-licence test fixture only. The header of `hu_HU.aff` is

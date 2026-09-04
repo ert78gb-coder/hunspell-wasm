@@ -7,16 +7,16 @@ git submodule update --init vendor/hunspell
 
 mkdir -p dist
 # emsdk's entrypoint execs the command without a shell, so glob expansion
-# needs sh -c. Clang will not accept -std=c++11 on wrapper.c, so the engine
-# is compiled as C++11 and the shim as C, then one link step with the flags
-# this package pins.
+# needs sh -c. Clang will not accept -std=c++14 on wrapper.c, so the engine
+# is compiled as C++14 (Hunspell's required standard) and the shim as C,
+# then one link step with the flags this package pins.
 docker run --rm -v "$PWD":/work -w /work "$EMSDK_IMAGE" \
   sh -c '
     set -eu
     objdir=/tmp/hunspell-wasm-o
     rm -rf "$objdir"
     mkdir -p "$objdir"
-    emcc -O2 -std=c++11 -DHUNSPELL_STATIC \
+    emcc -O2 -std=c++14 -DHUNSPELL_STATIC \
       -I vendor/hunspell/src/hunspell \
       vendor/hunspell/src/hunspell/*.cxx \
       -c
