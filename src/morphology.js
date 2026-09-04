@@ -6,7 +6,6 @@
  * Hunspell sometimes prefixes a compound-part field before `st:`
  * (`po:adj_num  st:egy …`). The public line starts at `st:`, matching
  * `hunspell -m` after its word column and the tests' `raw.startsWith('st:')`.
- *
  * @param {string} raw
  * @returns {string}
  */
@@ -24,17 +23,22 @@ function morphLine(raw) {
  *
  * Fields are space-separated `key:value` tokens. `st:` becomes `stem`,
  * `po:` becomes `pos`, and every other field is kept verbatim in `tags`.
- *
  * @param {string} raw
  * @returns {import('../types/index.d.ts').Analysis}
  */
 export function parseAnalysis(raw) {
   raw = morphLine(raw)
-  /** @type {string | null} */
+  /**
+   * @type {string | null}
+   */
   let stem = null
-  /** @type {string | null} */
+  /**
+   * @type {string | null}
+   */
   let pos = null
-  /** @type {string[]} */
+  /**
+   * @type {string[]}
+   */
   const tags = []
 
   for (const field of raw.split(' ')) {
@@ -44,10 +48,12 @@ export function parseAnalysis(raw) {
     if (field.startsWith('st:')) {
       const value = field.slice(3)
       stem = value.length > 0 ? value : null
-    } else if (field.startsWith('po:')) {
+    }
+    else if (field.startsWith('po:')) {
       const value = field.slice(3)
       pos = value.length > 0 ? value : null
-    } else {
+    }
+    else {
       tags.push(field)
     }
   }

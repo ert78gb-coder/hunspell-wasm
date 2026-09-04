@@ -3,7 +3,9 @@ import { after, before, describe, it } from 'node:test'
 import { loadHungarian } from './_helper/load-fixture.js'
 
 describe('analyze', () => {
-  /** @type {import('../types/index.d.ts').Hunspell} */
+  /**
+   * @type {import('../types/index.d.ts').Hunspell}
+   */
   let hunspell
   before(async () => {
     hunspell = await loadHungarian()

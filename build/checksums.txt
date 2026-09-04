@@ -1,1 +1,1 @@
-af1019d035c06884141f9a9d5d03dbe576ce0ed6d16b17fe04e299abfdeac28b  dist/hunspell.wasm
+0f4be31a5c1c6c066e47fb4181679ac48dbba3a3865734617b6d674aec6ac826  dist/hunspell.wasm

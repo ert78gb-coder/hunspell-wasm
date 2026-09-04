@@ -29,8 +29,12 @@ const DIC_PATH = '/hunspell.dic'
  * @property {{ writeFile: (path: string, data: Uint8Array) => void }} FS
  */
 
-/** @type {Promise<HunspellModule> | undefined} */
-let modulePromise
+const wasmRuntime = {
+  /**
+   * @type {Promise<HunspellModule> | undefined}
+   */
+  modulePromise: undefined,
+}
 
 /**
  * @param {unknown} value
@@ -50,10 +54,9 @@ function assertString(value, name) {
 async function readRequired(filePath) {
   try {
     return await readFile(filePath)
-  } catch (cause) {
-    const error = new Error(`Dictionary file not found: ${filePath}`)
-    error.cause = cause
-    throw error
+  }
+  catch (error_) {
+    throw new Error(`Dictionary file not found: ${filePath}`, { cause: error_ })
   }
 }
 
@@ -61,15 +64,15 @@ async function readRequired(filePath) {
  * @returns {Promise<HunspellModule>}
  */
 function loadModule() {
-  if (modulePromise === undefined) {
-    const dist = path.join(import.meta.dirname, '..', 'dist')
-    modulePromise = createModule({
+  if (wasmRuntime.modulePromise === undefined) {
+    const distribution = path.join(import.meta.dirname, '..', 'dist')
+    wasmRuntime.modulePromise = createModule({
       locateFile(file) {
-        return path.join(dist, file)
+        return path.join(distribution, file)
       },
     })
   }
-  return modulePromise
+  return wasmRuntime.modulePromise
 }
 
 /**
@@ -88,7 +91,8 @@ function withUtf8(module, text, fn) {
   try {
     module.stringToUTF8(text, pointer, size)
     return fn(pointer)
-  } finally {
+  }
+  finally {
     module._free(pointer)
   }
 }
@@ -101,7 +105,8 @@ function withUtf8(module, text, fn) {
 function takeUtf8(module, pointer) {
   try {
     return module.UTF8ToString(pointer)
-  } finally {
+  }
+  finally {
     module._hs_free(pointer)
   }
 }
@@ -123,7 +128,6 @@ function listCall(module, word, call) {
 /**
  * Hunspell list items often carry a leading space from the morph formatter.
  * The public API and the native `-m` output expose the line without it.
- *
  * @param {string} joined
  * @returns {string[]}
  */
@@ -131,15 +135,21 @@ function splitLines(joined) {
   if (joined.length === 0) {
     return []
   }
-  return joined.split('\n').map((line) => line.trim()).filter((line) => line.length > 0)
+  return joined.split('\n').map(line => line.trim()).filter(line => line.length > 0)
 }
 
 class Hunspell {
-  /** @type {HunspellModule} */
+  /**
+   * @type {HunspellModule}
+   */
   #module
-  /** @type {number} */
+  /**
+   * @type {number}
+   */
   #handle
-  /** @type {boolean} */
+  /**
+   * @type {boolean}
+   */
   #disposed = false
 
   /**
@@ -164,7 +174,7 @@ class Hunspell {
   spell(word) {
     this.#ensureOpen()
     assertString(word, 'word')
-    return withUtf8(this.#module, word, (pointer) => this.#module._hs_spell(this.#handle, pointer) === 1)
+    return withUtf8(this.#module, word, pointer => this.#module._hs_spell(this.#handle, pointer) === 1)
   }
 
   /**
@@ -174,9 +184,9 @@ class Hunspell {
   analyze(word) {
     this.#ensureOpen()
     assertString(word, 'word')
-    return listCall(this.#module, word, (pointer) =>
+    return listCall(this.#module, word, pointer =>
       this.#module._hs_analyze(this.#handle, pointer),
-    ).map(parseAnalysis)
+    ).map(line => parseAnalysis(line))
   }
 
   /**
@@ -186,7 +196,7 @@ class Hunspell {
   stem(word) {
     this.#ensureOpen()
     assertString(word, 'word')
-    return listCall(this.#module, word, (pointer) => this.#module._hs_stem(this.#handle, pointer))
+    return listCall(this.#module, word, pointer => this.#module._hs_stem(this.#handle, pointer))
   }
 
   /**
@@ -196,7 +206,7 @@ class Hunspell {
   suggest(word) {
     this.#ensureOpen()
     assertString(word, 'word')
-    return listCall(this.#module, word, (pointer) =>
+    return listCall(this.#module, word, pointer =>
       this.#module._hs_suggest(this.#handle, pointer),
     )
   }
@@ -210,7 +220,7 @@ class Hunspell {
     this.#ensureOpen()
     assertString(word, 'word')
     assertString(example, 'example')
-    const joined = withUtf8(this.#module, word, (wordPointer) =>
+    const joined = withUtf8(this.#module, word, wordPointer =>
       withUtf8(this.#module, example, (examplePointer) => {
         const result = this.#module._hs_generate(this.#handle, wordPointer, examplePointer)
         return takeUtf8(this.#module, result)
@@ -230,7 +240,6 @@ class Hunspell {
 
 /**
  * Load Hunspell with a consumer-supplied `.aff` / `.dic` pair.
- *
  * @param {import('../types/index.d.ts').LoadOptions} options
  * @returns {Promise<import('../types/index.d.ts').Hunspell>}
  */
@@ -248,8 +257,8 @@ export async function load(options) {
   module.FS.writeFile(AFF_PATH, new Uint8Array(affBytes))
   module.FS.writeFile(DIC_PATH, new Uint8Array(dicBytes))
 
-  const handle = withUtf8(module, AFF_PATH, (affPointer) =>
-    withUtf8(module, DIC_PATH, (dicPointer) => module._hs_create(affPointer, dicPointer)),
+  const handle = withUtf8(module, AFF_PATH, affPointer =>
+    withUtf8(module, DIC_PATH, dicPointer => module._hs_create(affPointer, dicPointer)),
   )
   if (handle === 0) {
     throw new Error(`failed to create Hunspell engine from ${options.aff} and ${options.dic}`)

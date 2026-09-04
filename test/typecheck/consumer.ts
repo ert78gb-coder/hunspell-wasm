@@ -1,5 +1,5 @@
-import { load } from 'hunspell-wasm'
-import type { Analysis, Hunspell, LoadOptions } from 'hunspell-wasm'
+import { load } from '@ert78gb/hunspell-wasm'
+import type { Analysis, Hunspell, LoadOptions } from '@ert78gb/hunspell-wasm'
 
 const options: LoadOptions = {
   aff: 'xx.aff',

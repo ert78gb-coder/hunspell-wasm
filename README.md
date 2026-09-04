@@ -1,4 +1,4 @@
-# hunspell-wasm
+# @ert78gb/hunspell-wasm
 
 Hunspell as a WebAssembly module with a JavaScript API for Node. The engine is
 the real Hunspell compiled from a pinned commit, not a reimplementation. The
@@ -11,12 +11,18 @@ synchronous. One artefact runs on every platform Node runs on. There is no
 native toolchain on the host, no compilation at install, and no install
 scripts.
 
+The public API is the raw ES modules in `src/`. There is no application
+bundler. `dist/hunspell.js` is Emscripten's wasm loader (instantiate, MEMFS,
+UTF-8 helpers), not a bundle of this package; it is produced by `npm run build`
+together with `dist/hunspell.wasm` and shipped on npm so install does not
+compile.
+
 ## Use
 
 Node 26 or later.
 
 ```js
-import { load } from 'hunspell-wasm'
+import { load } from '@ert78gb/hunspell-wasm'
 
 const hunspell = await load({ aff: '/path/to/xx_XX.aff', dic: '/path/to/xx_XX.dic' })
 
@@ -56,13 +62,14 @@ npm run build
 ```
 
 That compiles the ten Hunspell engine files plus `build/wrapper.c` to
-`dist/hunspell.js` and `dist/hunspell.wasm`. `dist/` is committed, so
-`npm install` copies files and nothing runs.
+`dist/hunspell.js` and `dist/hunspell.wasm`. `dist/` is a build artefact, not
+committed; a published npm package includes it so `npm install` copies files
+and nothing runs.
 
-A release is one commit that updates the submodule pointer (when the engine
-moves), `dist/` and `build/checksums.txt` together. CI clones with submodules,
-runs `build/build.sh`, and fails if the hash of `dist/hunspell.wasm` differs
-from the recorded one.
+A release updates the submodule pointer (when the engine moves) and
+`build/checksums.txt` together, then rebuilds `dist/`. CI clones with
+submodules, runs `build/build.sh`, and fails if the hash of
+`dist/hunspell.wasm` differs from the recorded one.
 
 ## Pinned inputs
 
@@ -79,7 +86,9 @@ overflow in the dictionary loader.
 ## Test
 
 ```sh
+git submodule update --init
 npm ci --ignore-scripts
+npm run build
 npm run lint
 npm run typecheck
 npm test
@@ -102,7 +111,7 @@ recorded below at each release.
 
 | release | load (Hungarian fixture) | 10 000 analyses | peak RSS |
 |---|---|---|---|
-| 1.0.0 | 113 ms | 277 ms (28 µs/word) | 92 MB |
+| 0.0.1 | 113 ms | 277 ms (28 µs/word) | 92 MB |
 
 ## Licences
 

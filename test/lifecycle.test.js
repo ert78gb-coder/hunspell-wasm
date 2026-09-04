@@ -25,7 +25,7 @@ describe('lifecycle', () => {
 
   it('a non-string word is rejected before it reaches the engine', async ({ assert }) => {
     const hunspell = await loadHungarian()
-    assert.throws(() => hunspell.spell(/** @type {any} */ (5)), TypeError)
+    assert.throws(() => hunspell.spell(5), TypeError)
     hunspell.dispose()
   })
 })

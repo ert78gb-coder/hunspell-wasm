@@ -7,7 +7,7 @@
     "noEmit": true,
     "verbatimModuleSyntax": true,
     "paths": {
-      "hunspell-wasm": ["../../types/index.d.ts"]
+      "@ert78gb/hunspell-wasm": ["../../types/index.d.ts"]
     }
   },
   "files": ["consumer.ts"]
